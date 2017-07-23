@@ -1,30 +1,54 @@
-#include "kalman_filter.h"
+#ifndef KALMAN_FILTER_H_
+#define KALMAN_FILTER_H_
+#include "Dense"
 
-KalmanFilter::KalmanFilter() {
-}
+using Eigen::MatrixXd;
+using Eigen::VectorXd;
 
-KalmanFilter::~KalmanFilter() {
-}
+class KalmanFilter {
+public:
 
-void KalmanFilter::Predict() {
-	x_ = F_ * x_;
-	MatrixXd Ft = F_.transpose();
-	P_ = F_ * P_ * Ft + Q_;
-}
+	///* state vector
+	VectorXd x_;
 
-void KalmanFilter::Update(const VectorXd &z) {
-	VectorXd z_pred = H_ * x_;
-	VectorXd y = z - z_pred;
-	MatrixXd Ht = H_.transpose();
-	MatrixXd S = H_ * P_ * Ht + R_;
-	MatrixXd Si = S.inverse();
-	MatrixXd PHt = P_ * Ht;
-	MatrixXd K = PHt * Si;
+	///* state covariance matrix
+	MatrixXd P_;
 
-	//new estimate
-	x_ = x_ + (K * y);
-	long x_size = x_.size();
-	MatrixXd I = MatrixXd::Identity(x_size, x_size);
-	P_ = (I - K * H_) * P_;
-}
+	///* state transistion matrix
+	MatrixXd F_;
+
+	///* process covariance matrix
+	MatrixXd Q_;
+
+	///* measurement matrix
+	MatrixXd H_;
+
+	///* measurement covariance matrix
+	MatrixXd R_;
+
+	/**
+	 * Constructor
+	 */
+	KalmanFilter();
+
+	/**
+	 * Destructor
+	 */
+	virtual ~KalmanFilter();
+
+	/**
+	 * Predict Predicts the state and the state covariance
+	 * using the process model
+	 */
+	void Predict();
+
+	/**
+	 * Updates the state and
+	 * @param z The measurement at k+1
+	 */
+	void Update(const VectorXd &z);
+
+};
+
+#endif /* KALMAN_FILTER_H_ */
 
